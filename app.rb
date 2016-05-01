@@ -15,12 +15,23 @@ class App < Sinatra::Base
     key
   end
 
+  get '/status/*' do
+    key = params[:splat][0]
+    if @@files[key]
+      status 200
+      'Found'
+    else
+      status 404
+      'Not found'
+    end
+  end
+
   get '/*' do
     key = params[:splat][0]
     if @@files[key]
       @@files.delete(key)
     else
-      status 400
+      status 404
       'Key not found or already read.'
     end
   end
