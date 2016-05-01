@@ -29,6 +29,7 @@ class App < Sinatra::Base
   get '/*' do
     key = params[:splat][0]
     if @@files[key]
+      content_type 'text/plain'
       @@files.delete(key)
     else
       status 404
