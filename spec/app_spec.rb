@@ -34,7 +34,7 @@ RSpec.describe App do
       expect(last_response.status).to eql(200)
       get "/#{key}"
       expect(last_response.body).not_to eql('testing123')
-      expect(last_response.status).to eql(404)
+      expect(last_response.status).to eql(410)
     end
   end
 
@@ -45,11 +45,15 @@ RSpec.describe App do
       get "/status/#{key}"
       expect(last_response.status).to eql(200)
     end
-    it 'returns 404 if key does not exist' do
+    it 'returns 200 if key has been used' do
       post '/create', 'testing123'
       key = last_response.body
       get "#{key}"
       get "/status/#{key}"
+      expect(last_response.status).to eql(200)
+    end
+    it 'returns 404 if key never existed' do
+      get "/status/foo"
       expect(last_response.status).to eql(404)
     end
   end

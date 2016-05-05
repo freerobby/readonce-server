@@ -1,5 +1,7 @@
 require 'sinatra'
 
+require 'json'
+
 require_relative 'bag'
 
 class App < Sinatra::Base
@@ -8,16 +10,21 @@ class App < Sinatra::Base
   end
 
   post '/create' do
+    content_type 'text/plain'
     bag = Bag.new
     bag.data = request.body.read
     bag.key
   end
 
   get '/status/*' do
+    content_type 'text/plain'
     key = params[:splat][0]
-    if Bag.find_by_key(key)
+    if bag = Bag.find_by_key(key)
       status 200
-      'Found'
+      {
+        'accessed_at' => bag.accessed_at,
+        'accessed_by_ip' => bag.accessed_by_ip
+      }.to_json
     else
       status 404
       'Not found'
@@ -25,13 +32,23 @@ class App < Sinatra::Base
   end
 
   get '/*' do
+    content_type 'text/plain'
     key = params[:splat][0]
-    if Bag.find_by_key(key)
-      content_type 'text/plain'
-      Bag.delete_by_key(key).data
+    if bag = Bag.find_by_key(key)
+      if bag.accessed_at
+        status 410 # Gone
+        "This bag was accessed at #{bag.accessed_at} by IP address #{bag.accessed_by_ip}.\nIf that's not what you were expecting, you should assume it was compromised."
+      else
+        status 200
+        bag.accessed_at = Time.now
+        bag.accessed_by_ip = request.ip
+        data = bag.data
+        bag.data = nil
+        data
+      end
     else
       status 404
-      'Key not found or already read.'
+      'Key not found or server restarted since it was created.'
     end
   end
 end
