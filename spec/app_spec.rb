@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', 'app')
+require_relative '../app'
 
 require 'spec_helper'
 require 'rack/test'
@@ -18,15 +18,15 @@ RSpec.describe App do
   end
 
   describe 'POST /create' do
-    it 'creates file with body as contents and returns key' do
+    it 'creates bag with body as contents and returns key' do
       post '/create', 'testing123'
       key = last_response.body
-      expect(App.class_eval('@@files')[key]).to eql('testing123')
+      expect(Bag.find_by_key(key).data).to eql('testing123')
     end
   end
 
   describe 'GET /*' do
-    it 'loads file and deletes it' do
+    it 'loads bag and deletes it' do
       post '/create', 'testing123'
       key = last_response.body
       get "/#{key}"
