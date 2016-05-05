@@ -5,6 +5,8 @@ require 'json'
 require_relative 'bag'
 
 class App < Sinatra::Base
+  MINIMUM_RUBY_CLIENT_VERSION = '1.0.8'
+
   get '/' do
     'Please use the command line client.'
   end
@@ -29,6 +31,10 @@ class App < Sinatra::Base
       status 404
       'Not found'
     end
+  end
+
+  get '/minimum-ruby-client-version' do
+    MINIMUM_RUBY_CLIENT_VERSION
   end
 
   get '/*' do

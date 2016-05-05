@@ -38,6 +38,13 @@ RSpec.describe App do
     end
   end
 
+  describe 'GET /minimum-ruby-client-version' do
+    it 'returns specified minimum version' do
+      get '/minimum-ruby-client-version'
+      expect(last_response.body).to eql(App::MINIMUM_RUBY_CLIENT_VERSION)
+    end
+  end
+
   describe 'GET /status/*' do
     it 'returns 200 if key exists' do
       post '/create', 'testing123'
