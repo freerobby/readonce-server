@@ -36,6 +36,20 @@ RSpec.describe App do
       expect(last_response.body).not_to eql('testing123')
       expect(last_response.status).to eql(410)
     end
+
+    it 'refuses Slack requests' do
+      post '/create', 'testing123'
+      key = last_response.body
+      get "/#{key}", {}, {"HTTP_USER_AGENT" => "Slackbot 1.0(+https://api.slack.com/robots)"}
+      expect(last_response.body).to eql('Forbidden')
+      expect(last_response.status).to eql(403)
+      get "/#{key}"
+      expect(last_response.body).to eql('testing123')
+      expect(last_response.status).to eql(200)
+      get "/#{key}"
+      expect(last_response.body).not_to eql('testing123')
+      expect(last_response.status).to eql(410)
+    end
   end
 
   describe 'GET /minimum-ruby-client-version' do

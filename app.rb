@@ -37,6 +37,12 @@ class App < Sinatra::Base
     MINIMUM_RUBY_CLIENT_VERSION
   end
 
+  # Stop Slack from fetching links people send; see https://api.slack.com/robots
+  get '/*', agent: /.*Slack.*/ do
+    status 403
+    'Forbidden'
+  end
+
   get '/*' do
     content_type 'text/plain'
     key = params[:splat][0]
